@@ -53,14 +53,13 @@ for my $i (reverse 0..49) {
 }
 
 #
-# check amount of redis clients
+# check amount of redis clients at this time
 #
 
 my $nclients;
-
 $nclients = $1 if `redis-cli INFO` =~ /connected_clients:(\d+)/;
-
-ok $nclients > 1 && $nclients < 5, "take less than 5 redis clients ($nclients clients)";
+$nclients //= 0;
+ok $nclients > 0 && $nclients < 5, "take less than 5 redis clients ($nclients clients)";
 
 #
 # ...and checks data on each channel
