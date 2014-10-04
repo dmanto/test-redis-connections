@@ -1,23 +1,19 @@
 use Test::More;
 use Test::Mojo;
 use Mojo::Redis2;
-use Mojo::JSON qw(decode_json encode_json);
 
 use FindBin;
 require "$FindBin::Bin/../subs.pl";
 
-my $json = Mojo::JSON->new;
-
 my $t = Test::Mojo->new;
 
-$t->get_ok('/')->status_is(200)->content_like(qr/sample/);
-
-#
-# receive browser event through websocket
-#
 my $redis_server = 'localhost:6379';
 $redis_server = $ENV{REDISCLOUD_URL} if $ENV{REDISCLOUD_URL};
 my $redis = Mojo::Redis2->new(url => $redis_server);
+
+#
+# Single channel example
+#
 
 $t->websocket_ok('/sub/channel_alfa')
   ->status_is('101', 'websocket connection')
@@ -66,7 +62,7 @@ ok $nclients > 0 && $nclients < 5, "take less than 5 redis clients ($nclients cl
 #
 
 for my $j (0..49) {
-	my $i = ($j+31) % 50;
+	my $i = ($j*37) % 50;
 	$ta[$i]->message_ok->message_is("M: sample $i, C: channel_$i")->finish_ok;
 }
 

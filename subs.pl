@@ -8,8 +8,6 @@ $redis_server = $ENV{REDISCLOUD_URL} if $ENV{REDISCLOUD_URL};
 helper redis => sub { shift->stash->{redis} ||= Mojo::Redis2->new(url => $redis_server)};
 
 
-get '/' => sub { shift->render(text => 'sample') };
-
 websocket '/sub/:channel' => sub {
 	my $c = shift;
 	my $schann = $c->stash('channel');
