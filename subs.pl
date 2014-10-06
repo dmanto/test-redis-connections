@@ -17,7 +17,7 @@ websocket '/sub/:channel' => sub {
 	  $tx->send("M: $message, C: $channel");
 	});
 
-	$c->redis->subscribe($schann => sub {
+	$c->redis->subscribe("$schann" => sub {
 	  my ($self, $err) = @_;
 	 
 	  $c->app->log->error("Subscription error on channel $schann : $err") if $err;
@@ -25,6 +25,18 @@ websocket '/sub/:channel' => sub {
 	$c->on(message => sub {
   		my ($ws, $bytes) = @_;
   		$c->send("echo: $bytes");
+		});
+
+};
+websocket '/pub' => sub {
+	my $c = shift;
+	my $tx = $c->tx;
+	$c->on(message => sub {
+  		my ($ws, $bytes) = @_;
+  		if ($bytes =~ /^(\S+)\s(.*)/) {
+	  		$c->redis->publish("$1" => "$2");
+	  		$c->send("Ok");
+  		} else {$c->send("No")}
 		});
 
 };
